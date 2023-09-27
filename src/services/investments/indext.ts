@@ -1,4 +1,7 @@
 import investmentsRepository from "../../repositories/investments";
+import transactionRepository from "../../repositories/transactions";
+import userRepository from "../../repositories/user";
+import generateObjectId from "../../utils/generateObjectId";
 
 /**
  * Service function to get investment transactions based on various filters.
@@ -36,8 +39,46 @@ const getInvestmentsTransactions = async (
   );
 };
 
+/**
+ * Handle an investment operation, including creating an investment transaction,
+ * updating the user's balance, and creating a transaction record.
+ *
+ * @param {string} ProfileId - The profile ID associated with the investment.
+ * @param {number} InvestmentAmount - The amount of the investment.
+ * @param {string} email - The user's email for balance update.
+ * @returns {Promise<void>} A promise that resolves when all operations are completed.
+ */
+const invest = (ProfileId: string, InvestmentAmount: number, email: string) => {
+  // Create an array to store promises for each operation
+  const promises = [];
+
+  // Create an investment transaction and push the promise onto the array
+  promises.push(
+    investmentsRepository.createInvestmentsTransaction({
+      ProfileId,
+      InvestmentAmount,
+      ProjectId: generateObjectId(), // Generate a unique ProjectId (should be updated later)
+    })
+  );
+
+  // Update the user's balance by deducting the investment amount and push the promise onto the array
+  promises.push(userRepository.updateUserBalance(email, -InvestmentAmount));
+
+  // Create a transaction record and push the promise onto the array
+  promises.push(
+    transactionRepository.createTransaction(
+      ProfileId,
+      InvestmentAmount,
+      "invest"
+    )
+  );
+
+  // Return a single promise that resolves when all promises in the array have resolved
+  return Promise.all(promises);
+};
+
 // Create an investmentsService object with the getInvestmentsTransactions function
-const investmentsService = { getInvestmentsTransactions };
+const investmentsService = { getInvestmentsTransactions, invest };
 
 // Export the investmentsService for use in other parts of your application
 export default investmentsService;

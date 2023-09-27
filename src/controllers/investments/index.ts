@@ -29,22 +29,8 @@ export const invest = async (req: Request, res: Response) => {
         .json({ message: "You do not have enough balance!" });
     }
 
-    // Create an investment transaction
-    await investmentsRepository.createInvestmentsTransaction({
-      ProfileId,
-      InvestmentAmount,
-      ProjectId: generateObjectId(), // Generate a unique ProjectId
-    });
-
-    // Update the user's balance by deducting the investment amount
-    await userRepository.updateUserBalance(email, -InvestmentAmount);
-
-    // Create a transaction record
-    await transactionRepository.createTransaction(
-      ProfileId,
-      InvestmentAmount,
-      "invest"
-    );
+    // call the investment service to invest
+    await investmentsService.invest(ProfileId, InvestmentAmount, email);
 
     // Respond with a 201 Created status and a success message
     return res.status(201).json({ message: "Investment successful!" });
