@@ -1,0 +1,452 @@
+openapi: 3.0.0
+info:
+  title: Money Transfer Backend API
+  version: 1.0.0
+  description: Money Transfer Rest API project with Node JS, Express JS, TypeScript & mongoDB database
+  contact:
+    name: Abdullah Mazumder
+    url: https://abdullahmazumder.vercel.app/
+    email: abdullahmazumder234@gmail.com
+servers:
+  - url: http://localhost:4000/api/v1
+    description: This is local servers
+
+tags:
+  - name: Auth
+    description: Authentication endpoints
+  - name: User
+    description: User data related endpoints
+  - name: Transaction
+    description: Transaction related endpoints
+  - name: Investment_Transaction
+    description: Investment_Transaction related endpoints
+
+paths:
+  "/auth/register":
+    post:
+      description: Create a new account
+      tags: ["Auth"]
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: John Doe
+                email:
+                  type: string
+                  format: email
+                  example: johndoe@example.com
+                password:
+                  type: string
+                  format: password
+              required: ["name", "email", "password"]
+      responses:
+        "201":
+          description: User registered successfully!
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User registered successfully!
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTBlNGRmYWUzZjRjN2U0Njk1NGRjYTMiLCJuYW1lIjoiQWJkdWxsYWgiLCJlbWFpbCI6ImFiZHVsbGFoQHRlc3QuY29tIiwiaWF0IjoxNjk1NDM2MjgyLCJleHAiOjE3MDA2MjAyODJ9.PMm1C-faDG9S_oL2pdYbs_S-ZUgugTekZuV2Ntp0HGk
+                      user:
+                        type: object
+                        properties:
+                          _id:
+                            type: string
+                            example: 650e4dfae3f4c7e46954dca3
+                          name:
+                            type: string
+                            example: John Doe
+                          email:
+                            type: string
+                            format: email
+        "400":
+          $ref: "#/components/responses/400"
+        "409":
+          description: User already exists with this email!
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User already exists with this email!
+        "500":
+          $ref: "#/components/responses/500"
+
+  "/auth/login":
+    post:
+      description: Login to you account
+      tags: ["Auth"]
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: johndoe@example.com
+                password:
+                  type: string
+                  format: password
+              required: ["email", "password"]
+      responses:
+        "200":
+          description: Login successful!
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Login successful!
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NTBlNGRmYWUzZjRjN2U0Njk1NGRjYTMiLCJuYW1lIjoiQWJkdWxsYWgiLCJlbWFpbCI6ImFiZHVsbGFoQHRlc3QuY29tIiwiaWF0IjoxNjk1NDM2MjgyLCJleHAiOjE3MDA2MjAyODJ9.PMm1C-faDG9S_oL2pdYbs_S-ZUgugTekZuV2Ntp0HGk
+        "400":
+          $ref: "#/components/responses/400"
+        "500":
+          $ref: "#/components/responses/500"
+
+  "/user/user-balance":
+    get:
+      security:
+        - bearerAuth: []
+      description: Get total balance of a user
+      tags:
+        - "User"
+      responses:
+        "200":
+          description: Get total balance of a user
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  balance:
+                    type: integer
+                    example: 100
+        "401":
+          $ref: "#/components/responses/401"
+        "500":
+          $ref: "#/components/responses/500"
+
+  "/transaction/deposit":
+    patch:
+      security:
+        - bearerAuth: []
+      description: For deposit Money
+      tags:
+        - "Transaction"
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: integer
+                  example: 100
+      responses:
+        "200":
+          description: For deposit Money
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Deposit successful!
+                  newBalance:
+                    type: integer
+                    example: 100
+                  transactionType:
+                    type: string
+                    example: deposit
+        "400":
+          description: Invalid credentials!
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid credentials!
+                  error:
+                    type: object
+                    properties:
+                      amount:
+                        type: string
+                        example: Invalid amount!
+
+        "401":
+          $ref: "#/components/responses/401"
+        "500":
+          $ref: "#/components/responses/500"
+
+  "/transaction/withdraw":
+    patch:
+      security:
+        - bearerAuth: []
+      description: For withdraw Money
+      tags:
+        - "Transaction"
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: integer
+                  example: 100
+      responses:
+        "200":
+          description: For withdraw Money
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Withdraw successful!
+                  newBalance:
+                    type: integer
+                    example: 100
+                  transactionType:
+                    type: string
+                    example: withdraw
+        "400":
+          description: Invalid credentials!
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid credentials!
+                  error:
+                    type: object
+                    properties:
+                      amount:
+                        type: string
+                        example: Invalid amount!
+
+        "401":
+          $ref: "#/components/responses/401"
+        "500":
+          $ref: "#/components/responses/500"
+
+  "/transaction/transaction-list":
+    get:
+      security:
+        - bearerAuth: []
+      description: Get all transactions of a user
+      tags:
+        - "Transaction"
+      responses:
+        "200":
+          description: Get all transactions of a user
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  allTransactions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        user:
+                          type: string
+                        amount:
+                          type: number
+                        transactionType:
+                          type: string
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+                        __v:
+                          type: integer
+                example:
+                  allTransactions:
+                    - _id: "650e63b19b26bc29db02d6c3"
+                      user: "650e4dfae3f4c7e46954dca3"
+                      amount: 100
+                      transactionType: "deposit"
+                      createdAt: "2023-09-23T04:04:01.922Z"
+                      updatedAt: "2023-09-23T04:04:01.922Z"
+                      __v: 0
+
+        "401":
+          $ref: "#/components/responses/401"
+        "500":
+          $ref: "#/components/responses/500"
+
+  "/investments/invest":
+    post:
+      security:
+        - bearerAuth: []
+      description: Invest to a project
+      tags:
+        - "Investment_Transaction"
+      requestBody:
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                PorfileId:
+                  type: string
+                  example: 65141e3f399caba8924df9e2
+                InvestmentAmount:
+                  type: number
+                  example: 100
+                ProjectId:
+                  type: string
+                  example: 651427f6a1d347e8d4f03e82
+      responses:
+        "201":
+          description: Investment successful!
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Investment successful!
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "500":
+          $ref: "#/components/responses/500"
+
+  "/investments/transactions":
+    get:
+      security:
+        - bearerAuth: []
+      description: Get all Investment Transactions of a user
+      tags:
+        - "Investment_Transaction"
+      parameters:
+        - in: query
+          name: ProfileId
+          description: Getting all investment Transactions of a user whose id is equal to ProifleId
+          required: true
+          schema:
+            type: string
+            example: 65144dcce36dea28d2cd9d5f
+        - in: query
+          name: TransactionType
+          description: Filterintg Investment Transactions with TransactionType
+          schema:
+            type: string
+        - in: query
+          name: TransactionPeriod
+          description: Filterintg Investment Transactions with TransactionPeriod
+          schema:
+            type: string
+            example: 7days or 30days or 180days or 1year or 2year
+        - in: query
+          name: keywords
+          description: Filterintg Investment Transactions with keywords. Here keywords for searching in the project title
+          schema:
+            type: string
+
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              example:
+                - _id: "6514283891b0abefcea4ef74"
+                  ProfileId: "650e4dfae3f4c7e46954dca3"
+                  InvestmentAmount: 100
+                  ProjectId: "6514283881718777627e6527"
+                  TransactionType: ""
+                  createdAt: "2023-09-27T13:03:52.018Z"
+                  updatedAt: "2023-09-27T13:03:52.018Z"
+                  __v: 0
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "500":
+          $ref: "#/components/responses/500"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    "400":
+      description: Invalid credentials!
+      content:
+        "application/json":
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Invalid credentials!
+              error:
+                type: object
+                properties:
+                  email:
+                    type: string
+                    example: Invalid email!
+                  password:
+                    type: string
+                    example: Invalid password!
+    "401":
+      description: Authorization failed!
+      content:
+        "application/json":
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Authorization failed!
+    "500":
+      description: Internal server error!
+      content:
+        "application/json":
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Internal server error!
