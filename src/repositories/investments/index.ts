@@ -128,10 +128,25 @@ const getInvestmentsTransactions = async (
   return Investments_Transaction.aggregate(pipeline).exec();
 };
 
+/**
+ * Function to delete investment transaction record.
+ * @param {string} key - any key of the record.
+ * @param {string} value - The value of the key.
+ * @returns {Promise<any>} - A promise that resolves the delete proccess.
+ */
+const deleteInvestmentTransaction = async (key: string, value: string) => {
+  if (key === "_id") {
+    return Investments_Transaction.findByIdAndDelete(value);
+  }
+
+  return Investments_Transaction.findOneAndDelete({ key, value });
+};
+
 // Create an investmentsRepository object with the defined functions
 const investmentsRepository = {
   createInvestmentsTransaction,
   getInvestmentsTransactions,
+  deleteInvestmentTransaction,
 };
 
 // Export the investmentsRepository for use in other parts of your application

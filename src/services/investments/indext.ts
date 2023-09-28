@@ -48,33 +48,67 @@ const getInvestmentsTransactions = async (
  * @param {string} email - The user's email for balance update.
  * @returns {Promise<void>} A promise that resolves when all operations are completed.
  */
-const invest = (ProfileId: string, InvestmentAmount: number, email: string) => {
-  // Create an array to store promises for each operation
-  const promises = [];
+const invest = async (
+  ProfileId: string,
+  InvestmentAmount: number,
+  email: string
+): Promise<void> => {
+  // call debit wallet api for updating user's balance who has invested in the project
+  let user;
+  try {
+    user = await userRepository.updateUserBalance(email, -InvestmentAmount);
+  } catch (error) {
+    return Promise.reject(error);
+  }
 
-  // Create an investment transaction and push the promise onto the array
-  promises.push(
-    investmentsRepository.createInvestmentsTransaction({
-      ProfileId,
-      InvestmentAmount,
-      ProjectId: generateObjectId(), // Generate a unique ProjectId (should be updated later)
-    })
-  );
+  /**
+   * TODO:
+   * - We have to update the user's balance who has created the project.
+   * - First we need to fetch the specified project with the projectId.
+   * - Then we need to extract the profileId from the project document.
+   * - Then we have to update user's balance with this profileId.
+   */
 
-  // Update the user's balance by deducting the investment amount and push the promise onto the array
-  promises.push(userRepository.updateUserBalance(email, -InvestmentAmount));
+  // create an record in table Investments_Transactions
+  let investmentTransaction;
 
-  // Create a transaction record and push the promise onto the array
-  promises.push(
-    transactionRepository.createTransaction(
+  try {
+    investmentTransaction =
+      await investmentsRepository.createInvestmentsTransaction({
+        ProfileId,
+        InvestmentAmount,
+        /**
+         * TODO:
+         * - We must have to update the ProjectId with the actual id.
+         */
+        ProjectId: generateObjectId(), // Generate a unique ProjectId (should be updated later)
+      });
+  } catch (error) {
+    // when we get an error then we have to rollback the user balance
+    await userRepository.updateUserBalance(email, InvestmentAmount);
+    return Promise.reject(error);
+  }
+
+  // Create a transaction record
+  try {
+    await transactionRepository.createTransaction(
       ProfileId,
       InvestmentAmount,
       "invest"
-    )
-  );
+    );
+  } catch (error) {
+    // when we get an error then we have to rollback the user balance
+    await userRepository.updateUserBalance(email, InvestmentAmount);
 
-  // Return a single promise that resolves when all promises in the array have resolved
-  return Promise.all(promises);
+    // if we get an error then we have to delete the current Investment Transaction record
+    await investmentsRepository.deleteInvestmentTransaction(
+      "_id",
+      investmentTransaction._id
+    );
+    return Promise.reject(error);
+  }
+
+  return Promise.resolve();
 };
 
 // Create an investmentsService object with the getInvestmentsTransactions function
