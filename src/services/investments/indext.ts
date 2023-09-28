@@ -111,8 +111,21 @@ const invest = async (
   return Promise.resolve();
 };
 
+/**
+ * Handle getting all transactions with type 'invest',
+ * @param {string} ProfileId - The profile ID.
+ * @returns {Promise<void>} A promise that resolves when all operations are completed.
+ */
+const getAllInvestOfAUser = async (ProfileId: string) => {
+  return investmentsRepository.getInvest(ProfileId);
+};
+
 // Create an investmentsService object with the getInvestmentsTransactions function
-const investmentsService = { getInvestmentsTransactions, invest };
+const investmentsService = {
+  getInvestmentsTransactions,
+  invest,
+  getAllInvestOfAUser,
+};
 
 // Export the investmentsService for use in other parts of your application
 export default investmentsService;

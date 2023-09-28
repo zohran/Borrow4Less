@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Investments_Transaction, {
   I_Investments_Transaction,
 } from "../../models/Investments_Transaction";
+import Transaction from "../../models/Transaction";
 
 /**
  * Function to create a new investments transaction.
@@ -142,11 +143,23 @@ const deleteInvestmentTransaction = async (key: string, value: string) => {
   return Investments_Transaction.findOneAndDelete({ key, value });
 };
 
+/**
+ * Function to get investments transactions.
+ * @param {string} ProfileId - The user's profile ID.
+ * @returns {Promise<any>} - A promise that resolves with the filtered investment transactions.
+ */
+const getInvest = async (ProfileId: string): Promise<any> => {
+  return Transaction.find({ user: ProfileId, transactionType: "invest" }).sort({
+    createdAt: -1,
+  });
+};
+
 // Create an investmentsRepository object with the defined functions
 const investmentsRepository = {
   createInvestmentsTransaction,
   getInvestmentsTransactions,
   deleteInvestmentTransaction,
+  getInvest,
 };
 
 // Export the investmentsRepository for use in other parts of your application

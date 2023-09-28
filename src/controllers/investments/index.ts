@@ -75,3 +75,26 @@ export const getInvestmentTransactionsOfAUser = async (
     res.status(500).json({ message: "Internal server error!" });
   }
 };
+
+/**
+ * Endpoint for fetching all invests of a user.
+ * This function performs the following steps:
+ * 1. Extracts query parameters from the request.
+ * 2. Calls the investmentsService to retrieve investment transactions.
+ * 3. Responds with the retrieved data or handles errors.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ */
+export const getAllInvestOfAUser = async (req: Request, res: Response) => {
+  // Extract query parameters from the request
+  const ProfileId = req.query.ProfileId as string;
+
+  try {
+    // Call the investmentsService to fetch investment transactions of a user
+    const data = await investmentsService.getAllInvestOfAUser(ProfileId);
+    return res.status(200).json(data);
+  } catch (error) {
+    // Handle errors here and respond with a 500 Internal Server Error
+    res.status(500).json({ message: "Internal server error!" });
+  }
+};

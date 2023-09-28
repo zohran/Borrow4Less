@@ -3,10 +3,12 @@ import { authenticate } from "../../middlewares/authenticate";
 import {
   getInvestmentTransactionsOfAUser,
   invest,
+  getAllInvestOfAUser,
 } from "../../controllers/investments";
 import {
   getInvestmentsTransactionsValidator,
   investmentTransactionValidator,
+  getInvestsValidator,
 } from "../../middlewares/validators/investmentTransactionValidator";
 
 // Create an Express router instance
@@ -26,6 +28,14 @@ router.get(
   getInvestmentsTransactionsValidator, // Validate the request parameters
   authenticate, // Authenticate the user (ensure they are logged in)
   getInvestmentTransactionsOfAUser // Handle the request to get investment transactions
+);
+
+// Define a GET route for fetching invests of a user
+router.get(
+  "/invest",
+  getInvestsValidator, // Validate the request parameters
+  authenticate, // Authenticate the user (ensure they are logged in)
+  getAllInvestOfAUser // Handle the request to get invests of a user
 );
 
 export default router;

@@ -351,6 +351,41 @@ paths:
         "500":
           $ref: "#/components/responses/500"
 
+    get:
+      security:
+        - bearerAuth: []
+      description: Get all Invests of a user
+      tags:
+        - "Investment_Transaction"
+      parameters:
+        - in: query
+          name: ProfileId
+          description: Getting all investment Transactions of a user whose id is equal to ProifleId
+          required: true
+          schema:
+            type: string
+            example: 65144dcce36dea28d2cd9d5f
+
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              example:
+                - _id: 6514205d328ad836da1b8a6f
+                  user: 650e4dfae3f4c7e46954dca3
+                  amount: 0
+                  transactionType: invest
+                  createdAt: 2023-09-27T12:30:21.973Z
+                  updatedAt: 2023-09-27T12:30:21.973Z
+                  __v: 0
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "500":
+          $ref: "#/components/responses/500"
+
   "/investments/transactions":
     get:
       security:

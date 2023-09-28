@@ -97,3 +97,34 @@ export const getInvestmentsTransactionsValidator = (
   // If validation passes, continue to the next middleware
   next();
 };
+
+/**
+ * Middleware for validating query parameters when fetching investments of a user.
+ * @param {Request} req - The Express request object.
+ * @param {Response} res - The Express response object.
+ * @param {NextFunction} next - The next middleware function.
+ */
+export const getInvestsValidator = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  // Extract query parameters from the request
+  const ProfileId = req.query.ProfileId as string;
+
+  // Define an error object to store validation errors
+  const error: { ProfileId?: string } = {};
+
+  // Validate ProfileId
+  if (!ProfileId || typeof ProfileId !== "string") {
+    error.ProfileId = "Invalid ProfileId!";
+  }
+
+  // If there are validation errors, respond with a 400 Bad Request status
+  if (error.ProfileId) {
+    return res.status(400).json({ message: "Invalid Credentials!", error });
+  }
+
+  // If validation passes, continue to the next middleware
+  next();
+};
